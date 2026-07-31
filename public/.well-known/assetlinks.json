@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.notifetch.app",
+    "sha256_cert_fingerprints": [
+      "B3:93:B5:CF:4D:C0:B5:C2:6F:96:7B:63:BE:41:A8:D6:7D:C7:06:17:92:27:32:C6:D1:AF:66:75:BB:29:75:7E"
+    ]
+  }
+}]

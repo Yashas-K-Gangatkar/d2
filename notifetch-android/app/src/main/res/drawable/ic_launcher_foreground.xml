@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  v2.9.68: NotiFetch logo foreground — white "NF" monogram with motion lines.
+  Drawn as a vector drawable so it scales perfectly at any density.
+
+  Design:
+  - White "N" and "F" merged together (geometric, bold)
+  - Three motion/speed lines on the left of the N
+  - All elements are white (#FFFFFF) on transparent background
+  - The orange-red background is set via ic_launcher_background.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Motion lines (three diagonal lines on the left, suggesting speed) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,38 L34,38 L34,41 L22,41 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,50 L34,50 L34,53 L20,53 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,62 L34,62 L34,65 L22,65 Z" />
+
+    <!-- "N" shape (geometric, bold, white) -->
+    <!-- Left vertical bar of N -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,32 L46,32 L46,76 L38,76 Z" />
+    <!-- Diagonal of N (connecting top-left to bottom-right) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,32 L46,32 L70,76 L62,76 Z" />
+    <!-- Right vertical bar of N -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M62,32 L70,32 L70,76 L62,76 Z" />
+
+    <!-- "F" shape (merged with N, geometric, bold, white) -->
+    <!-- Vertical bar of F (overlaps with N's right bar, extends it) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,32 L78,32 L78,76 L70,76 Z" />
+    <!-- Top horizontal bar of F -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,32 L88,32 L88,40 L70,40 Z" />
+    <!-- Middle horizontal bar of F (shorter) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,48 L84,48 L84,55 L70,55 Z" />
+
+</vector>

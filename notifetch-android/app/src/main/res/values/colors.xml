@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- NotiFetch brand colors -->
+    <color name="notifetch_primary">#FF8F00</color>
+    <color name="notifetch_primary_dark">#FFB300</color>
+    <color name="notifetch_secondary">#F57C00</color>
+    <color name="notifetch_tertiary">#D84315</color>
+    <color name="notifetch_background">#FFFBF5</color>
+    <color name="notifetch_surface">#FFFBF5</color>
+    <color name="notifetch_on_primary">#FFFFFF</color>
+    <color name="notifetch_on_background">#1F1B16</color>
+
+    <!-- Category-based colors (NOT brand-specific — legal compliance) -->
+    <!-- Food Delivery — warm oranges -->
+    <color name="category_food_1">#E8751A</color>
+    <color name="category_food_2">#D94F4F</color>
+    <color name="category_food_3">#D4A017</color>
+    <color name="category_food_4">#4DB6AC</color>
+
+    <!-- Grocery — greens -->
+    <color name="category_grocery_1">#66BB6A</color>
+    <color name="category_grocery_2">#E67E22</color>
+    <color name="category_grocery_3">#9C27B0</color>
+
+    <!-- Package — blues/teals -->
+    <color name="category_package_1">#26A69A</color>
+    <color name="category_package_2">#7E57C2</color>
+    <color name="category_package_3">#00BCD4</color>
+
+    <!-- Courier — indigos -->
+    <color name="category_courier_1">#5C6BC0</color>
+    <color name="category_courier_2">#42A5F5</color>
+
+    <!-- Last-Mile — teals -->
+    <color name="category_last_mile_1">#26A69A</color>
+    <color name="category_last_mile_2">#42A5F5</color>
+
+    <!-- Ride — greens/violets -->
+    <color name="category_ride_1">#66BB6A</color>
+    <color name="category_ride_2">#E91E8C</color>
+
+    <!-- Medical — reds -->
+    <color name="category_medical">#D94F4F</color>
+
+    <!-- Freight — ambers -->
+    <color name="category_freight">#E8751A</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- v2.9.68: New logo color — orange-red squircle background -->
+    <color name="notifetch_logo_bg">#FF5A1F</color>
+</resources>

@@ -1,0 +1,257 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── User & Auth ──────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  phone         String?
+  emailVerified DateTime?
+  phoneVerified DateTime?
+  image         String?
+  passwordHash  String?
+  region        String    @default("north-america")
+  currency      String    @default("USD")
+  language      String    @default("en")
+  distanceUnit  String    @default("mi")
+  role          String    @default("driver")
+  plan          String    @default("free")
+  firebaseUid     String?   @unique
+  stripeCustomerId String?
+  trialEndsAt   DateTime?
+  fcmToken      String?
+  rideSafeMode  Boolean   @default(false)
+  soundAlerts   Boolean   @default(true)
+  vibration     Boolean   @default(true)
+  voiceAlerts   Boolean   @default(false)
+  autoAccept    Boolean   @default(false)
+  minValue      Float     @default(8.0)
+  maxDistance   Float     @default(6.0)
+  darkMode      Boolean   @default(true)
+  // v2.9.88: Server-side premium + referral (survives reinstall)
+  premiumUntil  DateTime?
+  referralCode  String?   @unique
+  referralCount Int       @default(0)
+  redeemedCodes String[]  @default([])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  sources       NotificationSource[]
+  orders        AcceptedOrder[]
+  earnings      EarningRecord[]
+  payments      Payment[]
+  notifications Notification[]
+  preferences   Preferences?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Notification Sources ─────────────────────────────────────────────────────
+// NotiFetch reads notifications from the user's device using Android's
+// NotificationListenerService. We NEVER access delivery platform APIs,
+// store credentials, or use OAuth tokens.
+
+model NotificationSource {
+  id                  String   @id @default(cuid())
+  userId              String
+  platformId          String
+  platformName        String   // Default brand name (e.g., "Swiggy Delivery", "DoorDash Dasher")
+  customName          String?  // User's custom display name (e.g., "Swiggy", "Z", "My Delivery App")
+  category            String
+  packageName         String?
+  listening           Boolean  @default(false)
+  notificationsToday  Int      @default(0)
+  earningsToday       Float    @default(0)
+  lastNotificationAt  DateTime?
+  lastSyncAt          DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platformId])
+}
+
+model AcceptedOrder {
+  id            String   @id @default(cuid())
+  userId        String
+  platformId    String
+  category      String
+  value         Float
+  currency      String   @default("USD")
+  pickup        String
+  dropoff       String
+  distance      Float
+  distanceUnit  String   @default("mi")
+  status        String   @default("accepted")
+  acceptedAt    DateTime @default(now())
+  completedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EarningRecord {
+  id          String   @id @default(cuid())
+  userId      String
+  platformId  String
+  category    String
+  amount      Float
+  currency    String   @default("USD")
+  date        DateTime
+  orderCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                  String   @id @default(cuid())
+  userId              String
+  stripePaymentId     String?
+  razorpayPaymentId   String?
+  amount              Float
+  currency            String   @default("USD")
+  status              String   @default("pending")
+  plan                String
+  period              String   @default("monthly")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  // v2.9.38: Indexes for common query patterns
+  // - userId: filter audit logs by user (admin panel "user activity" view)
+  // - createdAt: sort by recency (default sort for audit log views)
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Device Authentication ──────────────────────────────────────────────────
+// Used by the Android app to authenticate with the backend.
+// The Android app uses Firebase Anonymous Auth, then exchanges
+// the Firebase token for a session with the NotiFetch backend.
+
+model DeviceAuth {
+  id            String   @id @default(cuid())
+  userId        String?  // Linked to user account (null until linked)
+  deviceId      String   @unique
+  firebaseUid   String?  @unique
+  sessionToken  String?  @unique // Cryptographically secure token for Android app auth
+  fcmToken      String?
+  deviceModel   String?
+  androidVersion String?
+  appVersion    String?
+  lastActiveAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([firebaseUid])
+  @@index([sessionToken])
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+// Individual notification items aggregated from delivery platforms.
+// NotiFetch reads these from the user's device using Android's
+// NotificationListenerService — no API access or credentials needed.
+
+model Notification {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  body            String
+  source          String   // "swiggy_partner", "zomato_delivery", "amazon_flex", etc.
+  sourceIcon      String?
+  platform        String?  // Display name: "Swiggy Partner", "Zomato Delivery", etc.
+  packageName     String?  // Android package: "in.swiggy.partner", etc.
+  bigText         String?  // Expanded notification text
+  subText         String?  // Sub-text from notification
+  orderValue      Float?   // Extracted order/delivery value in rupees
+  pickupLocation  String?  // Extracted pickup location
+  dropoffLocation String?  // Extracted dropoff location
+  distance        String?  // Distance string like "3.2 km"
+  category        String?  // NEW_ORDER, ORDER_UPDATE, COMPLETED, EARNINGS, etc.
+  isRead          Boolean  @default(false)
+  deviceId        String?  // ID of the Android device that captured this
+  receivedAt      DateTime? // When the notification was received on device
+  createdAt       DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, source])
+  @@index([userId, category])
+  @@index([userId, isRead])
+}
+
+// ─── User Preferences ──────────────────────────────────────────────────────
+
+model Preferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  darkMode              Boolean  @default(true)
+  notificationsEnabled  Boolean  @default(true)
+  // Legacy India-specific fields (kept for backward compatibility)
+  swiggyEnabled         Boolean  @default(true)
+  zomatoEnabled         Boolean  @default(true)
+  amazonEnabled         Boolean  @default(true)
+  // Dynamic platform toggles — JSON object keyed by platformId
+  // e.g. { "uber-eats": true, "doordash": false, "swiggy_partner": true }
+  platformToggles       Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
