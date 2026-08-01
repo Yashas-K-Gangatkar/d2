@@ -1,96 +1,96 @@
 #!/usr/bin/env node
 /**
- * Postinstall patch: Fix jose package "workerd" export condition
+ * Fix: Create the missing dist/browser/index.js file in jose v6
  *
- * jose v6 has a broken "workerd" export that points to ./dist/browser/index.js
- * which doesn't exist (files are in ./dist/webapi/ instead).
+ * jose v6's package.json has "workerd": "./dist/browser/index.js" but
+ * the actual files are in ./dist/webapi/. This script creates the
+ * missing dist/browser/ directory by copying from dist/webapi/.
  *
- * This script finds ALL jose package.json files in node_modules (including nested
- * ones inside jwks-rsa/node_modules/) and removes the "workerd" export condition.
- * This prevents esbuild from trying to resolve the missing file during OpenNext bundling.
- *
- * npm overrides don't work reliably with npm clean-install (npm ci), so this
- * direct patch is the most reliable fix.
+ * This works because OpenNext copies node_modules — if the file exists
+ * in the source, it'll exist in the copy.
  */
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
-function findJosePkgJsons(dir, results = []) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.name === "node_modules") {
-      const nmPath = path.join(dir, entry.name);
-      try {
-        const pkgs = fs.readdirSync(nmPath, { withFileTypes: true });
-        for (const pkg of pkgs) {
-          if (pkg.name.startsWith("@")) {
-            const scopedPath = path.join(nmPath, pkg.name);
-            const scopedPkgs = fs.readdirSync(scopedPath, { withFileTypes: true });
-            for (const sp of scopedPkgs) {
-              if (sp.isDirectory()) {
-                const pkgJsonPath = path.join(scopedPath, sp.name, "package.json");
-                if (sp.name === "jose" && fs.existsSync(pkgJsonPath)) {
-                  results.push(pkgJsonPath);
-                }
-                findJosePkgJsons(path.join(scopedPath, sp.name), results);
-              }
-            }
-          } else if (pkg.isDirectory()) {
-            const pkgJsonPath = path.join(nmPath, pkg.name, "package.json");
-            if (pkg.name === "jose" && fs.existsSync(pkgJsonPath)) {
-              results.push(pkgJsonPath);
-            }
-            findJosePkgJsons(path.join(nmPath, pkg.name), results);
-          }
-        }
-      } catch (e) {
-        // ignore permission errors
-      }
-    }
-  }
-  return results;
-}
-
-const root = path.join(__dirname, "..", "node_modules");
-if (!fs.existsSync(root)) {
-  console.log("[patch-jose] node_modules not found, skipping");
+const nodeModules = path.join(__dirname, "..", "node_modules");
+if (!fs.existsSync(nodeModules)) {
+  console.log("[fix-jose] node_modules not found, skipping");
   process.exit(0);
 }
 
-const joseFiles = findJosePkgJsons(root);
-let patched = 0;
+// Find ALL jose package.json files anywhere in node_modules
+let joseDirs = [];
+try {
+  const output = execSync(
+    `find "${nodeModules}" -type d -name "jose" -path "*/node_modules/jose" 2>/dev/null`,
+    { encoding: "utf8" }
+  ).trim();
+  if (output) {
+    joseDirs = output.split("\n").filter(Boolean);
+  }
+} catch (e) {
+  // find not available, try manual walk
+  console.log("[fix-jose] find failed, trying manual walk...");
+}
 
-for (const file of joseFiles) {
-  try {
-    const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
-    if (!pkg.exports) continue;
-
-    let modified = false;
-
-    // Fix: remove "workerd" from all export conditions
-    function fixExports(exports) {
-      if (typeof exports !== "object" || exports === null) return exports;
-      for (const key of Object.keys(exports)) {
-        if (key === "workerd") {
-          delete exports[key];
-          modified = true;
-        } else if (typeof exports[key] === "object") {
-          fixExports(exports[key]);
-        }
-      }
-      return exports;
-    }
-
-    fixExports(pkg.exports);
-
-    if (modified) {
-      fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + "\n");
-      console.log(`[patch-jose] Patched ${path.relative(root, file)}`);
-      patched++;
-    }
-  } catch (e) {
-    // ignore parse errors
+// Also manually check top-level and common nested locations
+const manualPaths = [
+  path.join(nodeModules, "jose"),
+  path.join(nodeModules, "jwks-rsa", "node_modules", "jose"),
+];
+for (const p of manualPaths) {
+  if (fs.existsSync(path.join(p, "package.json")) && !joseDirs.includes(p)) {
+    joseDirs.push(p);
   }
 }
 
-console.log(`[patch-jose] Done. ${patched} of ${joseFiles.length} jose packages patched.`);
+console.log(`[fix-jose] Found ${joseDirs.length} jose package(s)`);
+
+let fixed = 0;
+for (const joseDir of joseDirs) {
+  const pkgJsonPath = path.join(joseDir, "package.json");
+  const browserDir = path.join(joseDir, "dist", "browser");
+  const webapiDir = path.join(joseDir, "dist", "webapi");
+  const browserIndex = path.join(browserDir, "index.js");
+
+  // Check if browser/index.js already exists
+  if (fs.existsSync(browserIndex)) {
+    console.log(`[fix-jose] OK (already has browser/): ${path.relative(nodeModules, joseDir)}`);
+    continue;
+  }
+
+  // Check if webapi/ exists (jose v6 stores files here)
+  if (!fs.existsSync(webapiDir)) {
+    console.log(`[fix-jose] SKIP (no webapi/ either): ${path.relative(nodeModules, joseDir)}`);
+    continue;
+  }
+
+  // Create browser/ directory and copy everything from webapi/
+  try {
+    fs.mkdirSync(browserDir, { recursive: true });
+
+    // Recursively copy webapi/ → browser/
+    function copyDir(src, dest) {
+      const entries = fs.readdirSync(src, { withFileTypes: true });
+      for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        if (entry.isDirectory()) {
+          fs.mkdirSync(destPath, { recursive: true });
+          copyDir(srcPath, destPath);
+        } else {
+          fs.copyFileSync(srcPath, destPath);
+        }
+      }
+    }
+    copyDir(webapiDir, browserDir);
+
+    console.log(`[fix-jose] FIXED (copied webapi/ → browser/): ${path.relative(nodeModules, joseDir)}`);
+    fixed++;
+  } catch (e) {
+    console.log(`[fix-jose] ERROR fixing ${path.relative(nodeModules, joseDir)}: ${e.message}`);
+  }
+}
+
+console.log(`[fix-jose] Done. ${fixed} of ${joseDirs.length} jose packages fixed.`);
