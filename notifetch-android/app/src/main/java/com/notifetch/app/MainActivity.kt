@@ -52,6 +52,7 @@ import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
 import com.notifetch.app.ui.screens.PlatformsScreen
 import com.notifetch.app.ui.screens.PlatformCategoryScreen
+import com.notifetch.app.ui.screens.PlatformSearchScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
@@ -369,6 +370,9 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToPlatforms = {
                         navController.navigate("platforms")
+                    },
+                    onNavigateToPlatformSearch = {
+                        navController.navigate("platform_search")
                     }
                 )
             }
@@ -406,6 +410,12 @@ fun NotiFetchNavHost() {
             composable("feedback") {
                 FeedbackScreen(
                     onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable("platform_search") {
+                PlatformSearchScreen(
+                    navController = navController,
+                    platforms = emptyList()
                 )
             }
         }

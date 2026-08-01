@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -106,6 +107,7 @@ fun SettingsScreen(
     onNavigateToHealthCheck: () -> Unit = {},
     onNavigateToFeedback: () -> Unit = {},
     onNavigateToPlatforms: () -> Unit = {},
+    onNavigateToPlatformSearch: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -489,6 +491,48 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = "Browse by category, rename, enable/disable",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            // Find Platform Number — search by brand name to find platform number
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToPlatformSearch() },
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Find Platform Number",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = "Search platform name (e.g., Swiggy, Zomato)",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

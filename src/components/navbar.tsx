@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, LogIn, LogOut, Download, Play, Zap } from "lucide-react";
+import { Menu, LogIn, LogOut, Download, Play, Zap, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const NAV_LINKS = [
@@ -18,7 +18,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
-  void useTheme();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -71,6 +71,18 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
+            {/* Theme toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="h-9 w-9 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              aria-label="Toggle theme"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </Button>
+
             {/* Play Store button */}
             <a
               href="https://play.google.com/store/apps/details?id=com.notifetch.app"
