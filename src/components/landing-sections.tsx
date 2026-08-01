@@ -777,9 +777,13 @@ export function Footer() {
           {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Bell className="w-4 h-4 text-white" />
-              </div>
+              <img
+                src="/icons/icon-192x192.png"
+                alt="NotiFetch"
+                className="w-8 h-8 rounded-lg"
+                width={32}
+                height={32}
+              />
               <span className="text-lg font-bold tracking-tight">NotiFetch</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4 max-w-xs">

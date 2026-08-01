@@ -282,8 +282,8 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center animate-glow-pulse">
-            <Zap className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 rounded-2xl overflow-hidden animate-glow-pulse">
+            <img src="/icons/icon-192x192.png" alt="NotiFetch" className="w-full h-full object-cover" width={56} height={56} />
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: "0ms" }} />

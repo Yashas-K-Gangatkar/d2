@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, LogIn, LogOut, Download, Play, Zap, Moon, Sun } from "lucide-react";
+import { Menu, LogIn, LogOut, Download, Play, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 const NAV_LINKS = [
@@ -50,9 +50,13 @@ export function Navbar() {
             onClick={() => handleNavClick("hero")}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-lg"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
-              <Zap className="w-4 h-4 text-white" fill="currentColor" />
-            </div>
+            <img
+              src="/icons/icon-192x192.png"
+              alt="NotiFetch"
+              className="w-8 h-8 rounded-lg"
+              width={32}
+              height={32}
+            />
             <span className="text-lg font-bold tracking-tight">NotiFetch</span>
           </button>
 
@@ -157,9 +161,13 @@ export function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-72 bg-background">
                 <SheetTitle className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-white" fill="currentColor" />
-                  </div>
+                  <img
+                    src="/icons/icon-192x192.png"
+                    alt="NotiFetch"
+                    className="w-8 h-8 rounded-lg"
+                    width={32}
+                    height={32}
+                  />
                   <span className="font-bold">NotiFetch</span>
                 </SheetTitle>
                 <div className="flex flex-col gap-1">

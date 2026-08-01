@@ -149,10 +149,10 @@ function SignInForm() {
         </div>
 
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4 transition-transform hover:rotate-6 hover:scale-110">
-            <Zap className="w-8 h-8 text-white" fill="currentColor" />
+          <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl shadow-primary/25 mb-4 transition-transform hover:rotate-6 hover:scale-110">
+            <img src="/icons/icon-192x192.png" alt="NotiFetch" className="w-full h-full object-cover" width={56} height={56} />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold gradient-text-static">
             NotiFetch
           </h1>
           <p className="text-sm text-muted-foreground mt-1">One Feed. All Notifications. Zero Credentials.</p>
@@ -247,5 +247,5 @@ function SignInForm() {
 }
 
 export default function SignInPage() {
-  return <Suspense fallback={<div className="min-h-screen flex flex-col items-center justify-center bg-background"><div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-xl shadow-amber-500/25 animate-pulse"><Zap className="w-8 h-8 text-white" /></div></div>}><SignInForm /></Suspense>;
+  return <Suspense fallback={<div className="min-h-screen flex flex-col items-center justify-center bg-background"><div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl shadow-primary/25 animate-pulse"><img src="/icons/icon-192x192.png" alt="NotiFetch" className="w-full h-full object-cover" width={56} height={56} /></div></div>}><SignInForm /></Suspense>;
 }
