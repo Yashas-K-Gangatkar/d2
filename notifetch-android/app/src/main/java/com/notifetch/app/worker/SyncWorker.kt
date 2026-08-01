@@ -188,8 +188,13 @@ class SyncWorker @AssistedInject constructor(
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
 
+            // v2.9.98: Sync every 6 hours (was 15 min) to reduce Vercel serverless
+            // function invocations. 10 users × 15min = 28,800 calls/month (too many).
+            // 10 users × 6h = 1,200 calls/month (safe for free tier).
+            // Notifications still captured locally in real-time; sync only uploads
+            // the backlog periodically.
             val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(
-                15, TimeUnit.MINUTES
+                6, TimeUnit.HOURS
             )
                 .setConstraints(constraints)
                 .build()
