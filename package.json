@@ -9,7 +9,7 @@
     "deploy:cloudflare": "npx @opennextjs/cloudflare build && npx wrangler deploy",
     "start": "next start",
     "lint": "eslint .",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node scripts/patch-jose.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
