@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
-    "build:cloudflare": "npx @opennextjs/cloudflare build; node scripts/fix-opennext-jose.js; npx @opennextjs/cloudflare build",
+    "build:cloudflare": "npx --legacy-peer-deps @cloudflare/next-on-pages",
     "deploy:cloudflare": "npx @opennextjs/cloudflare build && npx wrangler deploy",
     "start": "next start",
     "lint": "eslint .",
