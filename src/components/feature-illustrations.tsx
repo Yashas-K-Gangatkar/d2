@@ -35,83 +35,96 @@ export function UnifiedFeedIllustration() {
   ];
 
   return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4 sm:p-6"
       style={{ background: "linear-gradient(135deg, #F7F5FF 0%, #FFFFFF 100%)" }}>
-      <div className="relative w-full h-full grid grid-cols-[auto_1fr] gap-3">
+      <div className="relative w-full h-full grid grid-cols-[1fr_0.8fr_1.4fr] items-center gap-2 sm:gap-4">
         {/* LEFT: Source apps */}
-        <div className="flex flex-col justify-center gap-2.5">
+        <div className="flex flex-col justify-center gap-2 sm:gap-3">
           {apps.map((app, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -15 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
+              transition={{ delay: i * 0.12 }}
               className="flex items-center gap-2"
             >
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-base shadow-sm"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl shadow-sm shrink-0"
                 style={{ background: `${app.color}20` }}
               >
                 {app.icon}
               </div>
+              <span className="text-[10px] sm:text-xs font-medium text-zinc-500 hidden sm:block">{app.name}</span>
             </motion.div>
           ))}
         </div>
 
-        {/* MIDDLE: Flowing arrows */}
-        <div className="relative flex items-center">
-          <svg viewBox="0 0 120 160" className="w-full h-full" preserveAspectRatio="none">
+        {/* MIDDLE: Flowing arrows (smaller, contained) */}
+        <div className="relative h-full flex items-center justify-center">
+          <svg viewBox="0 0 80 120" className="h-24 sm:h-32 w-auto" preserveAspectRatio="xMidYMid meet">
             <defs>
               <linearGradient id="flow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#6D5EF8" stopOpacity="0.1" />
-                <stop offset="50%" stopColor="#6D5EF8" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.8" />
+                <stop offset="0%" stopColor="#6D5EF8" stopOpacity="0.2" />
+                <stop offset="50%" stopColor="#6D5EF8" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.9" />
               </linearGradient>
             </defs>
-            {[20, 60, 100, 140].map((y, i) => (
+            {[15, 40, 65, 90].map((y, i) => (
               <motion.path
                 key={i}
-                d={`M 0 ${y} C 40 ${y}, 60 80, 120 80`}
+                d={`M 0 ${y} C 30 ${y}, 50 60, 80 60`}
                 stroke="url(#flow-grad)"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 fill="none"
                 initial={{ pathLength: 0 }}
                 whileInView={{ pathLength: 1 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.3 + i * 0.1, duration: 0.8 }}
+                transition={{ delay: 0.3 + i * 0.1, duration: 0.7 }}
               />
             ))}
+            {/* Arrow head at convergence point */}
+            <motion.path
+              d="M 75 56 L 80 60 L 75 64"
+              stroke="#8B5CF6"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.9 }}
+            />
           </svg>
         </div>
 
         {/* RIGHT: Unified feed */}
-        <div className="col-start-2 flex flex-col justify-center gap-1.5">
-          <div className="flex items-center gap-2 mb-1 px-2">
-            <div className="w-5 h-5 rounded-md bg-gradient-to-br from-[#6D5EF8] to-[#8B5CF6] flex items-center justify-center">
-              <span className="text-white text-[8px] font-bold">NF</span>
+        <div className="flex flex-col justify-center gap-1.5">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-gradient-to-br from-[#6D5EF8] to-[#8B5CF6] flex items-center justify-center shrink-0">
+              <span className="text-white text-[8px] sm:text-[9px] font-bold">NF</span>
             </div>
-            <span className="text-[10px] font-bold text-zinc-700">Unified Feed</span>
+            <span className="text-[10px] sm:text-xs font-bold text-zinc-700">Unified Feed</span>
           </div>
           {feedItems.map((item, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 15 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.8 + i * 0.15 }}
+              transition={{ delay: 0.8 + i * 0.12 }}
               className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-zinc-200/80 shadow-sm"
             >
               <div
-                className="w-6 h-6 rounded-md flex items-center justify-center text-xs shrink-0"
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-xs sm:text-sm shrink-0"
                 style={{ background: `${item.color}15` }}
               >
                 {item.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[9px] font-medium text-zinc-700 truncate">{item.label}</p>
+                <p className="text-[9px] sm:text-[10px] font-medium text-zinc-700 truncate">{item.label}</p>
               </div>
-              <span className="text-[8px] text-zinc-400 shrink-0">{item.time}</span>
+              <span className="text-[8px] sm:text-[9px] text-zinc-400 shrink-0">{item.time}</span>
             </motion.div>
           ))}
         </div>
