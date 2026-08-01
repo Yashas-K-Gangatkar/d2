@@ -1,85 +1,111 @@
 #!/usr/bin/env node
 /**
- * Fix jose in .open-next/ AFTER OpenNext copies node_modules but BEFORE esbuild runs.
+ * DEFINITIVE FIX: Copy the ENTIRE jose package from node_modules to .open-next/
  *
- * OpenNext's copy process skips jose's dist/browser/ directory (even though it's
- * in the "files" field). This script creates it by copying from dist/webapi/.
+ * OpenNext's copy process is broken — it copies jose's package.json but
+ * skips the dist/ directory. esbuild then can't resolve ./dist/browser/index.js.
  *
- * Usage: Called between two OpenNext build attempts.
+ * This script runs AFTER the first OpenNext build attempt (which creates .open-next/)
+ * and BEFORE the second attempt. It:
+ * 1. Finds the source jose in node_modules/ (has correct dist/browser/)
+ * 2. Finds all jose packages in .open-next/ (missing dist/browser/)
+ * 3. Copies the ENTIRE dist/ directory from source to target
  */
 const fs = require("fs");
 const path = require("path");
 
-const openNextDir = path.join(process.cwd(), ".open-next", "server-functions", "default", "node_modules");
+const cwd = process.cwd();
+const sourceJose = path.join(cwd, "node_modules", "jose");
+const openNextNodeModules = path.join(cwd, ".open-next", "server-functions", "default", "node_modules");
 
-if (!fs.existsSync(openNextDir)) {
-  console.log("[fix-opennext-jose] .open-next not found, nothing to fix");
+console.log("[fix-jose-final] Starting definitive jose fix...");
+console.log("[fix-jose-final] Source jose:", sourceJose);
+console.log("[fix-jose-final] Target node_modules:", openNextNodeModules);
+
+// Verify source jose has dist/browser/index.js
+const sourceBrowserIndex = path.join(sourceJose, "dist", "browser", "index.js");
+if (!fs.existsSync(sourceBrowserIndex)) {
+  console.log("[fix-jose-final] ERROR: Source jose doesn't have dist/browser/index.js");
+  console.log("[fix-jose-final] Cannot fix — aborting");
+  process.exit(0);
+}
+console.log("[fix-jose-final] Source jose OK (has dist/browser/index.js)");
+
+if (!fs.existsSync(openNextNodeModules)) {
+  console.log("[fix-jose-final] .open-next/ node_modules not found — nothing to fix");
   process.exit(0);
 }
 
-// Find all jose packages in .open-next
+// Find ALL jose directories in .open-next/ (including nested in jwks-rsa)
 function findJoseDirs(dir, results = []) {
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.isDirectory()) {
-        if (entry.name === "jose") {
-          const josePath = path.join(dir, entry.name);
-          if (fs.existsSync(path.join(josePath, "package.json"))) {
-            results.push(josePath);
-          }
+      if (!entry.isDirectory()) continue;
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.name === "jose") {
+        const pkgJson = path.join(fullPath, "package.json");
+        if (fs.existsSync(pkgJson)) {
+          results.push(fullPath);
         }
-        // Don't recurse into jose itself, but check other node_modules
-        if (entry.name === "node_modules" || (entry.name !== "jose" && entry.name !== ".bin")) {
-          findJoseDirs(path.join(dir, entry.name), results);
-        }
+      }
+
+      // Recurse into subdirectories (but not into jose itself)
+      if (entry.name !== "jose") {
+        findJoseDirs(fullPath, results);
       }
     }
   } catch (e) {
-    // ignore
+    // ignore permission errors
   }
   return results;
 }
 
-const joseDirs = findJoseDirs(openNextDir);
-console.log(`[fix-opennext-jose] Found ${joseDirs.length} jose package(s) in .open-next/`);
+const targetJoseDirs = findJoseDirs(openNextNodeModules);
+console.log(`[fix-jose-final] Found ${targetJoseDirs.length} jose package(s) in .open-next/`);
+
+// Copy dist/ directory recursively
+function copyDir(src, dest) {
+  if (!fs.existsSync(src)) return false;
+  fs.mkdirSync(dest, { recursive: true });
+  for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    if (entry.isDirectory()) {
+      copyDir(srcPath, destPath);
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+  return true;
+}
 
 let fixed = 0;
-for (const joseDir of joseDirs) {
-  const browserDir = path.join(joseDir, "dist", "browser");
-  const webapiDir = path.join(joseDir, "dist", "webapi");
-  const browserIndex = path.join(browserDir, "index.js");
+for (const targetJose of targetJoseDirs) {
+  const targetDist = path.join(targetJose, "dist");
+  const targetBrowserIndex = path.join(targetDist, "browser", "index.js");
 
-  if (fs.existsSync(browserIndex)) {
-    console.log(`[fix-opennext-jose] OK (has browser/): ${path.relative(openNextDir, joseDir)}`);
-    continue;
-  }
-
-  if (!fs.existsSync(webapiDir)) {
-    console.log(`[fix-opennext-jose] SKIP (no webapi/): ${path.relative(openNextDir, joseDir)}`);
-    continue;
-  }
-
-  try {
-    fs.mkdirSync(browserDir, { recursive: true });
-    function copyDir(src, dest) {
-      for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-        const srcPath = path.join(src, entry.name);
-        const destPath = path.join(dest, entry.name);
-        if (entry.isDirectory()) {
-          fs.mkdirSync(destPath, { recursive: true });
-          copyDir(srcPath, destPath);
-        } else {
-          fs.copyFileSync(srcPath, destPath);
-        }
-      }
-    }
-    copyDir(webapiDir, browserDir);
-    console.log(`[fix-opennext-jose] FIXED: ${path.relative(openNextDir, joseDir)}`);
+  // Check if already fixed
+  if (fs.existsSync(targetBrowserIndex)) {
+    console.log(`[fix-jose-final] OK (already has browser/): ${path.relative(openNextNodeModules, targetJose)}`);
     fixed++;
-  } catch (e) {
-    console.log(`[fix-opennext-jose] ERROR: ${e.message}`);
+    continue;
+  }
+
+  // Copy entire dist/ from source
+  console.log(`[fix-jose-final] Copying dist/ to: ${path.relative(openNextNodeModules, targetJose)}`);
+  if (copyDir(path.join(sourceJose, "dist"), targetDist)) {
+    // Verify
+    if (fs.existsSync(targetBrowserIndex)) {
+      console.log(`[fix-jose-final] FIXED: ${path.relative(openNextNodeModules, targetJose)}`);
+      fixed++;
+    } else {
+      console.log(`[fix-jose-final] FAILED: copy didn't create browser/index.js`);
+    }
+  } else {
+    console.log(`[fix-jose-final] FAILED: source dist/ doesn't exist`);
   }
 }
 
-console.log(`[fix-opennext-jose] Done. ${fixed} of ${joseDirs.length} fixed.`);
+console.log(`[fix-jose-final] Done. ${fixed} of ${targetJoseDirs.length} jose packages have dist/browser/index.js`);
