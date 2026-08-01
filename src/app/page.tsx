@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { HeroSection } from "@/components/hero-section";
+import { AutoScroll } from "@/components/auto-scroll";
 import {
   ChaosSection,
   SolutionSection,
@@ -16,6 +17,9 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background relative">
       {/* Film grain texture overlay — cinematic feel */}
       <div className="grain-overlay" aria-hidden="true" />
+
+      {/* Auto-scroll: gently scrolls when user is idle, stops on interaction */}
+      <AutoScroll />
 
       <Navbar />
 
