@@ -3,9 +3,11 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000 2>&1 | tee dev.log",
+    "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "build:cloudflare": "npx @opennextjs/cloudflare build",
+    "deploy:cloudflare": "npx @opennextjs/cloudflare build && npx wrangler deploy",
+    "start": "next start",
     "lint": "eslint .",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
@@ -93,6 +95,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.2",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",

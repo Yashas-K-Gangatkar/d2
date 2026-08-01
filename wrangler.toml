@@ -1,0 +1,25 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "notifetch"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Next.js on Cloudflare Workers via @opennextjs/cloudflare
+# Docs: https://opennext.js.org/cloudflare
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+# Environment variables — set secrets via Cloudflare dashboard
+# Dashboard → Workers & Pages → notifetch → Settings → Variables and Secrets
+# Required secrets to add:
+#   DATABASE_URL
+#   NEXTAUTH_SECRET
+#   NEXTAUTH_URL (set to https://www.notifetch.in)
+#   GOOGLE_CLIENT_ID
+#   GOOGLE_CLIENT_SECRET
+#   RESEND_API_KEY
+#   NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN
+
+[vars]
+NEXT_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com"
