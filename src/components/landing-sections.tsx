@@ -8,6 +8,13 @@ import {
   Mail,
 } from "lucide-react";
 import { PLATFORMS } from "@/lib/data";
+import {
+  UnifiedFeedIllustration,
+  PrivacyIllustration,
+  InstantIllustration,
+  SearchIllustration,
+  OfflineIllustration,
+} from "@/components/feature-illustrations";
 
 /* ============================================
  * Scroll Reveal Helper
@@ -320,22 +327,29 @@ export function CalmSection() {
           </p>
         </motion.div>
 
-        {/* Three calm outcome cards */}
+        {/* Three calm outcome cards — subtle tinted backgrounds */}
         <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {[
-            { icon: Zap, title: "Faster reactions", desc: "See every order the instant it arrives. No app-switching delay." },
-            { icon: Bell, title: "Nothing missed", desc: "Every notification captured. Every order visible. Nothing slips through." },
-            { icon: Shield, title: "Total peace of mind", desc: "No credentials. No risk. Just one clean feed of what matters." },
+            { icon: Zap, title: "Faster reactions", desc: "See every order the instant it arrives. No app-switching delay.", tint: "#FFFBEF", accent: "#F59E0B" },
+            { icon: Bell, title: "Nothing missed", desc: "Every notification captured. Every order visible. Nothing slips through.", tint: "#F7F5FF", accent: "#6D5EF8" },
+            { icon: Shield, title: "Total peace of mind", desc: "No credentials. No risk. Just one clean feed of what matters.", tint: "#F3FFF8", accent: "#10B981" },
           ].map((item, i) => (
             <motion.div
               key={item.title}
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: i * 0.2 }}
-              className="premium-card p-8 rounded-2xl glass-light text-center"
+              className="premium-card p-8 rounded-2xl text-center"
+              style={{
+                background: `linear-gradient(135deg, ${item.tint} 0%, #FFFFFF 60%, ${item.tint} 100%)`,
+                border: `1px solid ${item.accent}20`,
+              }}
             >
-              <div className="w-14 h-14 mx-auto mb-5 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
-                <item.icon className="w-7 h-7 text-emerald-400" />
+              <div
+                className="w-14 h-14 mx-auto mb-5 rounded-2xl flex items-center justify-center"
+                style={{ background: `${item.accent}15` }}
+              >
+                <item.icon className="w-7 h-7" style={{ color: item.accent }} />
               </div>
               <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
@@ -412,41 +426,7 @@ export function FeatureStagesSection() {
         title="Every notification. One timeline."
         desc="Food, grocery, package, pharmacy, freight — all unified into a single chronological feed. Scroll once, see everything."
         icon={Bell}
-        visual={
-          <div className="relative">
-            <div className="absolute inset-0 glow-primary opacity-40" />
-            <div className="relative p-6 rounded-3xl glass">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Bell className="w-4 h-4 text-primary" />
-                </div>
-                <span className="font-semibold">Unified Feed</span>
-              </div>
-              <div className="space-y-2">
-                {[
-                  { icon: "🍔", text: "Food order · 2.3 km", time: "now" },
-                  { icon: "🛒", text: "Grocery batch · 1.8 km", time: "1m" },
-                  { icon: "📦", text: "Package pickup · 5.1 km", time: "3m" },
-                  { icon: "💊", text: "Pharmacy · 0.9 km", time: "5m" },
-                  { icon: "🚚", text: "Freight load · 12 km", time: "8m" },
-                ].map((n, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/50"
-                  >
-                    <span className="text-lg">{n.icon}</span>
-                    <span className="text-sm flex-1">{n.text}</span>
-                    <span className="text-xs text-muted-foreground">{n.time}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        }
+        visual={<UnifiedFeedIllustration />}
       />
 
       {/* Privacy */}
@@ -457,32 +437,7 @@ export function FeatureStagesSection() {
         desc="No passwords. No accounts. No tracking. Notifications are processed on-device. Nothing is sent to any server unless you choose to."
         icon={Shield}
         align="right"
-        visual={
-          <div className="relative">
-            <div className="absolute inset-0 glow-accent opacity-40" />
-            <div className="relative flex flex-col items-center justify-center p-12 rounded-3xl glass">
-              <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="w-24 h-24 rounded-3xl bg-emerald-500/10 flex items-center justify-center mb-6"
-              >
-                <Lock className="w-12 h-12 text-emerald-400" />
-              </motion.div>
-              <p className="text-2xl font-bold mb-2">On-device only</p>
-              <p className="text-sm text-muted-foreground text-center max-w-xs">
-                Processed locally. Never uploaded. Never sold. Never tracked.
-              </p>
-              <div className="flex gap-3 mt-6">
-                {["No passwords", "No accounts", "No APIs"].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5 text-xs text-emerald-400">
-                    <Check className="w-3.5 h-3.5" />
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        }
+        visual={<PrivacyIllustration />}
       />
 
       {/* Fast */}
@@ -492,22 +447,7 @@ export function FeatureStagesSection() {
         title="Instant. Like the notification itself."
         desc="No polling. No background sync. NotiFetch uses Android's native notification listener — your feed updates the millisecond a notification arrives."
         icon={Zap}
-        visual={
-          <div className="relative">
-            <div className="absolute inset-0 glow-primary opacity-40" />
-            <div className="relative p-8 rounded-3xl glass text-center">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/10 flex items-center justify-center"
-              >
-                <Zap className="w-10 h-10 text-amber-400" fill="currentColor" />
-              </motion.div>
-              <p className="text-5xl font-bold mb-2 gradient-text-static">0ms</p>
-              <p className="text-sm text-muted-foreground">Latency between notification and feed</p>
-            </div>
-          </div>
-        }
+        visual={<InstantIllustration />}
       />
 
       {/* Search */}
@@ -518,31 +458,7 @@ export function FeatureStagesSection() {
         desc="Search your entire notification history. Filter by platform, category, or time. Every order you've received, searchable in milliseconds."
         icon={Search}
         align="right"
-        visual={
-          <div className="relative">
-            <div className="absolute inset-0 glow-accent opacity-40" />
-            <div className="relative p-6 rounded-3xl glass">
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-card border border-border/50 mb-4">
-                <Search className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Search notifications...</span>
-              </div>
-              <div className="space-y-2">
-                {["🍔 Food order from Tuesday", "📦 Package pickup last week", "🛒 Grocery batch this morning"].map((r, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.15 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/30"
-                  >
-                    <span className="text-sm">{r}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        }
+        visual={<SearchIllustration />}
       />
 
       {/* Offline */}
@@ -552,24 +468,7 @@ export function FeatureStagesSection() {
         title="Your history, always with you."
         desc="Every notification is saved locally. Browse past orders, review your history — even without an internet connection."
         icon={Wifi}
-        visual={
-          <div className="relative">
-            <div className="absolute inset-0 glow-primary opacity-40" />
-            <div className="relative p-8 rounded-3xl glass text-center">
-              <motion.div
-                animate={{ y: [0, -8, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-indigo-500/10 flex items-center justify-center"
-              >
-                <Smartphone className="w-10 h-10 text-indigo-400" />
-              </motion.div>
-              <p className="text-2xl font-bold mb-2">Works offline</p>
-              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                Full history access. No internet required. Always available.
-              </p>
-            </div>
-          </div>
-        }
+        visual={<OfflineIllustration />}
       />
     </>
   );
