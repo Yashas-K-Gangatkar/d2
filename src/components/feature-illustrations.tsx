@@ -3,500 +3,532 @@
 import { motion } from "framer-motion";
 
 /* ============================================
- * BESPOKE FEATURE ILLUSTRATIONS
+ * EXPLANATORY FEATURE ILLUSTRATIONS
  * ==========================================
- * Custom SVG illustrations for each NotiFetch feature.
- * Vector-based with subtle gradients, soft lighting, minimal detail.
- * Each illustration communicates the feature without requiring text.
+ * Each illustration tells a visual story that explains the feature
+ * in under 1 second — without requiring text.
+ *
+ * Design principles:
+ * - 60-80% visual coverage (fills the card)
+ * - Recognizable UI elements (phones, search bars, notifications, timelines)
+ * - Clear visual flow (top-to-bottom or left-to-right narrative)
+ * - No abstract shapes, circles, or random lines
+ * - The feature must be understandable with text hidden
  */
 
-// === Shared gradient defs ===
-function GradientDefs({ id, from, to }: { id: string; from: string; to: string }) {
-  return (
-    <defs>
-      <linearGradient id={`${id}-grad`} x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor={from} stopOpacity="1" />
-        <stop offset="100%" stopColor={to} stopOpacity="1" />
-      </linearGradient>
-      <linearGradient id={`${id}-glow`} x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor={from} stopOpacity="0.3" />
-        <stop offset="100%" stopColor={from} stopOpacity="0" />
-      </linearGradient>
-    </defs>
-  );
-}
-
 /* ============================================
- * 1. UNIFIED FEED — notifications flowing into one timeline
+ * 1. UNIFIED FEED — multiple apps → one timeline
+ * Shows: 4 app icons on left → flowing into → unified feed on right
  * ========================================== */
 export function UnifiedFeedIllustration() {
-  const notifications = [
-    { icon: "🍔", color: "#FB923C", delay: 0 },
-    { icon: "🛒", color: "#4ADE80", delay: 0.3 },
-    { icon: "📦", color: "#60A5FA", delay: 0.6 },
-    { icon: "💊", color: "#F472B6", delay: 0.9 },
+  const apps = [
+    { icon: "🍔", name: "Food", color: "#FB923C" },
+    { icon: "🛒", name: "Grocery", color: "#4ADE80" },
+    { icon: "📦", name: "Package", color: "#60A5FA" },
+    { icon: "💊", name: "Pharmacy", color: "#F472B6" },
+  ];
+  const feedItems = [
+    { icon: "🍔", label: "New order · 2.3 km", time: "now", color: "#FB923C" },
+    { icon: "🛒", label: "Batch ready · 1.8 km", time: "1m", color: "#4ADE80" },
+    { icon: "📦", label: "Pickup · 5.1 km", time: "3m", color: "#60A5FA" },
+    { icon: "💊", label: "Delivery · 0.9 km", time: "5m", color: "#F472B6" },
   ];
 
   return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #F7F5FF 0%, #FFFFFF 50%, #F0EDFF 100%)" }}>
-      {/* Ambient glow */}
-      <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-3xl" style={{ background: "#A78BFA", opacity: 0.15 }} />
-
-      <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <GradientDefs id="feed" from="#6D5EF8" to="#8B5CF6" />
-
-        {/* Source notifications (top) */}
-        {notifications.map((n, i) => {
-          const startX = 60 + i * 90;
-          return (
-            <motion.g
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+      style={{ background: "linear-gradient(135deg, #F7F5FF 0%, #FFFFFF 100%)" }}>
+      <div className="relative w-full h-full grid grid-cols-[auto_1fr] gap-3">
+        {/* LEFT: Source apps */}
+        <div className="flex flex-col justify-center gap-2.5">
+          {apps.map((app, i) => (
+            <motion.div
               key={i}
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: n.delay, duration: 0.6 }}
+              transition={{ delay: i * 0.15 }}
+              className="flex items-center gap-2"
             >
-              {/* Notification card */}
-              <rect x={startX - 25} y={40} width={50} height={36} rx={8} fill="white" stroke={n.color} strokeWidth="1.5" opacity="0.95" />
-              <circle cx={startX - 12} cy={58} r={6} fill={n.color} opacity="0.2" />
-              <rect x={startX - 2} y={54} width={20} height={3} rx={1.5} fill={n.color} opacity="0.6" />
-              <rect x={startX - 2} y={61} width={14} height={2.5} rx={1} fill="#CBD5E1" />
-            </motion.g>
-          );
-        })}
-
-        {/* Flowing lines converging to center */}
-        {notifications.map((n, i) => {
-          const startX = 60 + i * 90;
-          return (
-            <motion.path
-              key={`line-${i}`}
-              d={`M ${startX} 76 Q ${startX} 120, 200 150`}
-              stroke="url(#feed-grad)"
-              strokeWidth="1.5"
-              fill="none"
-              opacity="0.4"
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 + i * 0.15, duration: 1 }}
-            />
-          );
-        })}
-
-        {/* Central unified timeline */}
-        <motion.g
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-        >
-          <rect x={140} y={140} width={120} height={50} rx={12} fill="white" stroke="url(#feed-grad)" strokeWidth="2" />
-          {/* Mini notification rows inside */}
-          {notifications.map((n, i) => (
-            <g key={i}>
-              <circle cx={152 + i * 22} cy={158} r={4} fill={n.color} opacity="0.8" />
-              <rect x={148 + i * 22} y={166} width={14} height={2} rx={1} fill="#E2E8F0" />
-            </g>
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-base shadow-sm"
+                style={{ background: `${app.color}20` }}
+              >
+                {app.icon}
+              </div>
+            </motion.div>
           ))}
-          {/* Glow under card */}
-          <rect x={130} y={185} width={140} height={8} rx={4} fill="url(#feed-glow)" />
-        </motion.g>
+        </div>
 
-        {/* Timeline dots flowing down */}
-        {[0, 1, 2].map((i) => (
-          <motion.circle
-            key={`dot-${i}`}
-            cx={200}
-            cy={210 + i * 25}
-            r={3}
-            fill="#6D5EF8"
-            opacity={0.3 - i * 0.08}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 0.3 - i * 0.08 }}
-            viewport={{ once: true }}
-            transition={{ delay: 1.5 + i * 0.2 }}
-          />
-        ))}
-      </svg>
+        {/* MIDDLE: Flowing arrows */}
+        <div className="relative flex items-center">
+          <svg viewBox="0 0 120 160" className="w-full h-full" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="flow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#6D5EF8" stopOpacity="0.1" />
+                <stop offset="50%" stopColor="#6D5EF8" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#8B5CF6" stopOpacity="0.8" />
+              </linearGradient>
+            </defs>
+            {[20, 60, 100, 140].map((y, i) => (
+              <motion.path
+                key={i}
+                d={`M 0 ${y} C 40 ${y}, 60 80, 120 80`}
+                stroke="url(#flow-grad)"
+                strokeWidth="2"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                whileInView={{ pathLength: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.1, duration: 0.8 }}
+              />
+            ))}
+          </svg>
+        </div>
+
+        {/* RIGHT: Unified feed */}
+        <div className="col-start-2 flex flex-col justify-center gap-1.5">
+          <div className="flex items-center gap-2 mb-1 px-2">
+            <div className="w-5 h-5 rounded-md bg-gradient-to-br from-[#6D5EF8] to-[#8B5CF6] flex items-center justify-center">
+              <span className="text-white text-[8px] font-bold">NF</span>
+            </div>
+            <span className="text-[10px] font-bold text-zinc-700">Unified Feed</span>
+          </div>
+          {feedItems.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.8 + i * 0.15 }}
+              className="flex items-center gap-2 bg-white rounded-lg px-2 py-1.5 border border-zinc-200/80 shadow-sm"
+            >
+              <div
+                className="w-6 h-6 rounded-md flex items-center justify-center text-xs shrink-0"
+                style={{ background: `${item.color}15` }}
+              >
+                {item.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[9px] font-medium text-zinc-700 truncate">{item.label}</p>
+              </div>
+              <span className="text-[8px] text-zinc-400 shrink-0">{item.time}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
 
 /* ============================================
- * 2. PRIVACY — phone chip + shield, data stays in device
+ * 2. PRIVACY — phone with shield, data stays inside, no cloud
+ * Shows: Phone with notifications inside → shield → cloud crossed out
  * ========================================== */
 export function PrivacyIllustration() {
   return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #F3FFF8 0%, #FFFFFF 50%, #ECFDF5 100%)" }}>
-      {/* Ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-3xl" style={{ background: "#34D399", opacity: 0.12 }} />
-
-      <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="shield-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="1" />
-            <stop offset="100%" stopColor="#059669" stopOpacity="1" />
-          </linearGradient>
-          <linearGradient id="phone-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#E0E7FF" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#C7D2FE" stopOpacity="0.4" />
-          </linearGradient>
-        </defs>
-
-        {/* Phone outline */}
-        <motion.g
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+      style={{ background: "linear-gradient(135deg, #F3FFF8 0%, #FFFFFF 100%)" }}>
+      <div className="relative w-full h-full flex items-center justify-center gap-4">
+        {/* Phone with notifications inside */}
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
+          className="relative"
         >
-          <rect x={140} y={70} width={120} height={180} rx={20} fill="url(#phone-grad)" stroke="#CBD5E1" strokeWidth="1.5" />
-          {/* Notch */}
-          <rect x={185} y={78} width={30} height={5} rx={2.5} fill="#94A3B8" opacity="0.4" />
-        </motion.g>
+          <div className="w-20 h-32 rounded-2xl bg-white border-2 border-zinc-200 shadow-md p-1.5 flex flex-col gap-1">
+            {/* Notch */}
+            <div className="w-6 h-1 bg-zinc-300 rounded-full mx-auto mb-1" />
+            {/* Notification cards inside phone */}
+            {["🍔", "🛒", "📦", "💊"].map((icon, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="flex items-center gap-1 bg-emerald-50 rounded px-1 py-0.5"
+              >
+                <span className="text-[8px]">{icon}</span>
+                <div className="flex-1 h-0.5 bg-emerald-200 rounded" />
+              </motion.div>
+            ))}
+          </div>
+          {/* "Your data" label */}
+          <p className="text-[8px] text-center text-zinc-500 mt-1.5 font-medium">Your data</p>
+        </motion.div>
 
-        {/* Chip inside phone (represents on-device processing) */}
-        <motion.g
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          <rect x={175} y={130} width={50} height={50} rx={8} fill="#F1F5F9" stroke="#94A3B8" strokeWidth="1" />
-          {/* Chip pins */}
-          {[0, 1, 2].map((i) => (
-            <g key={i}>
-              <rect x={180 + i * 12} y={126} width={6} height={4} rx={1} fill="#CBD5E1" />
-              <rect x={180 + i * 12} y={180} width={6} height={4} rx={1} fill="#CBD5E1" />
-            </g>
-          ))}
-          {/* Chip center */}
-          <rect x={188} y={143} width={24} height={24} rx={4} fill="url(#shield-grad)" opacity="0.15" />
-        </motion.g>
-
-        {/* Shield overlay */}
-        <motion.g
+        {/* Shield with lock */}
+        <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.6, type: "spring", stiffness: 200 }}
+          transition={{ delay: 0.4, type: "spring" }}
+          className="flex flex-col items-center"
         >
-          <path
-            d="M 200 100 L 175 110 L 175 135 Q 175 155, 200 165 Q 225 155, 225 135 L 225 110 Z"
-            fill="url(#shield-grad)"
-            opacity="0.9"
-          />
-          {/* Lock inside shield */}
-          <rect x={193} y={125} width={14} height={10} rx={2} fill="white" />
-          <path d="M 196 125 L 196 121 Q 196 117, 200 117 Q 204 117, 204 121 L 204 125" fill="none" stroke="white" strokeWidth="1.5" />
-        </motion.g>
+          <div className="w-14 h-16 relative">
+            <svg viewBox="0 0 60 70" className="w-full h-full">
+              <defs>
+                <linearGradient id="shield-grad-2" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#10B981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M 30 5 L 10 12 L 10 35 Q 10 55, 30 65 Q 50 55, 50 35 L 50 12 Z"
+                fill="url(#shield-grad-2)"
+              />
+              {/* Lock body */}
+              <rect x="22" y="30" width="16" height="12" rx="2" fill="white" />
+              <path d="M 25 30 L 25 25 Q 25 20, 30 20 Q 35 20, 35 25 L 35 30" fill="none" stroke="white" strokeWidth="2" />
+              <circle cx="30" cy="36" r="2" fill="#059669" />
+            </svg>
+          </div>
+          <p className="text-[8px] text-emerald-600 mt-1 font-medium">Protected</p>
+        </motion.div>
 
-        {/* "No cloud" indicator — cloud with strikethrough */}
-        <motion.g
+        {/* Cloud crossed out */}
+        <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.4 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 0.8 }}
+          className="flex flex-col items-center"
         >
-          {/* Cloud (faded, with X) */}
-          <g opacity="0.3" transform="translate(70, 120)">
-            <ellipse cx={20} cy={15} rx={18} ry={12} fill="#CBD5E1" />
-            <line x1={5} y1={5} x2={35} y2={25} stroke="#EF4444" strokeWidth="2" />
-          </g>
-          <text x={75} y={155} textAnchor="middle" fontSize="9" fill="#94A3B8" opacity="0.5">no cloud</text>
-        </motion.g>
+          <div className="w-14 h-12 relative">
+            <svg viewBox="0 0 60 50" className="w-full h-full">
+              {/* Cloud (gray, faded) */}
+              <ellipse cx="30" cy="28" rx="22" ry="14" fill="#D1D5DB" opacity="0.5" />
+              <ellipse cx="20" cy="22" rx="10" ry="8" fill="#D1D5DB" opacity="0.5" />
+              <ellipse cx="40" cy="22" rx="10" ry="8" fill="#D1D5DB" opacity="0.5" />
+              {/* Red strikethrough */}
+              <line x1="8" y1="8" x2="52" y2="44" stroke="#EF4444" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          </div>
+          <p className="text-[8px] text-zinc-400 mt-1 font-medium">No cloud</p>
+        </motion.div>
+      </div>
 
-        {/* Data stays indicator — small dots inside phone */}
-        {[0, 1, 2].map((i) => (
-          <motion.circle
-            key={i}
-            cx={160 + i * 30}
-            cy={210}
-            r={3}
-            fill="#10B981"
-            opacity={0.6}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 0.6 }}
-            viewport={{ once: true }}
-            transition={{ delay: 1.2 + i * 0.2 }}
-          />
-        ))}
-      </svg>
+      {/* Bottom label */}
+      <div className="absolute bottom-3 left-0 right-0 text-center">
+        <p className="text-[9px] text-emerald-700 font-semibold">All processing happens on your device</p>
+      </div>
     </div>
   );
 }
 
 /* ============================================
- * 3. INSTANT — notification appearing with ripple + 0ms
+ * 3. INSTANT — notification arrives → appears in feed instantly
+ * Shows: Notification bell → timeline → "0ms" → instant appearance
  * ========================================== */
 export function InstantIllustration() {
   return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #FFFBEF 0%, #FFFFFF 50%, #FEF9C3 100%)" }}>
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full blur-3xl" style={{ background: "#FBBF24", opacity: 0.15 }} />
-
-      <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="instant-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F59E0B" stopOpacity="1" />
-            <stop offset="100%" stopColor="#D97706" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-
-        {/* Ripple rings */}
-        {[0, 1, 2].map((i) => (
-          <motion.circle
-            key={`ripple-${i}`}
-            cx={200}
-            cy={150}
-            r={20}
-            fill="none"
-            stroke="#F59E0B"
-            strokeWidth="1.5"
-            initial={{ r: 20, opacity: 0.6 }}
-            whileInView={{ r: 80, opacity: 0 }}
-            viewport={{ once: false }}
-            transition={{ duration: 2, delay: i * 0.5, repeat: Infinity }}
-          />
-        ))}
-
-        {/* Central notification card */}
-        <motion.g
-          initial={{ scale: 0.5, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
-        >
-          <rect x={160} y={120} width={80} height={60} rx={12} fill="white" stroke="url(#instant-grad)" strokeWidth="2" />
-          {/* Bell icon */}
-          <circle cx={200} cy={145} r={10} fill="#FEF3C7" />
-          <path d="M 196 148 Q 196 142, 200 142 Q 204 142, 204 148 L 204 150 L 196 150 Z" fill="#F59E0B" />
-          <circle cx={200} cy={151} r={1.5} fill="#F59E0B" />
-          {/* Text lines */}
-          <rect x={170} y={165} width={40} height={3} rx={1.5} fill="#FBBF24" opacity="0.6" />
-          <rect x={170} y={171} width={28} height={2.5} rx={1} fill="#E5E7EB" />
-        </motion.g>
-
-        {/* Motion blur lines (left side — incoming) */}
-        {[0, 1, 2, 3].map((i) => (
-          <motion.rect
-            key={`blur-${i}`}
-            x={80 + i * 15}
-            y={145 + (i % 2) * 8}
-            width={20 - i * 3}
-            height={3}
-            rx={1.5}
-            fill="#F59E0B"
-            opacity={0.4 - i * 0.08}
-            initial={{ x: 40, opacity: 0 }}
-            whileInView={{ x: 80 + i * 15, opacity: 0.4 - i * 0.08 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.5 + i * 0.1 }}
-          />
-        ))}
-
-        {/* 0ms indicator */}
-        <motion.g
-          initial={{ opacity: 0, y: 10 }}
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+      style={{ background: "linear-gradient(135deg, #FFFBEF 0%, #FFFFFF 100%)" }}>
+      <div className="relative w-full h-full flex flex-col items-center justify-center gap-2">
+        {/* Top: Incoming notification */}
+        <motion.div
+          initial={{ opacity: 0, y: -15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 1, duration: 0.6 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border-2 border-amber-300 shadow-md"
         >
-          <rect x={175} y={200} width={50} height={20} rx={10} fill="url(#instant-grad)" />
-          <text x={200} y={214} textAnchor="middle" fontSize="11" fontWeight="700" fill="white">0ms</text>
-        </motion.g>
+          <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+            <svg viewBox="0 0 20 20" className="w-4 h-4 fill-amber-500">
+              <path d="M 10 2 C 7 2, 5 4, 5 7 L 5 11 L 3 14 L 17 14 L 15 11 L 15 7 C 15 4, 13 2, 10 2 Z M 8 16 Q 10 18, 12 16" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-bold text-zinc-700">New order arrived</p>
+            <p className="text-[8px] text-zinc-400">Just now</p>
+          </div>
+        </motion.div>
 
-        {/* Tiny timeline (bottom) */}
-        {[0, 1, 2, 3, 4].map((i) => (
-          <circle
-            key={`tl-${i}`}
-            cx={120 + i * 40}
-            cy={245}
-            r={2}
-            fill="#F59E0B"
-            opacity={i === 2 ? 1 : 0.3}
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-/* ============================================
- * 4. SEARCH — magnifying glass over notification history
- * ========================================== */
-export function SearchIllustration() {
-  return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #F0F4FF 0%, #FFFFFF 50%, #E0E7FF 100%)" }}>
-      {/* Ambient glow */}
-      <div className="absolute top-1/4 right-1/4 w-32 h-32 rounded-full blur-3xl" style={{ background: "#818CF8", opacity: 0.15 }} />
-
-      <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="search-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6D5EF8" stopOpacity="1" />
-            <stop offset="100%" stopColor="#818CF8" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-
-        {/* Background notification cards (stacked, slightly faded) */}
-        {[0, 1, 2, 3].map((i) => (
-          <motion.g
-            key={i}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 0.4 - i * 0.05, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
-          >
-            <rect x={60} y={60 + i * 40} width={200} height={32} rx={8} fill="white" stroke="#E2E8F0" strokeWidth="1" />
-            <circle cx={75} cy={76 + i * 40} r={6} fill="#CBD5E1" />
-            <rect x={88} y={71 + i * 40} width={60} height={4} rx={2} fill="#CBD5E1" />
-            <rect x={88} y={79 + i * 40} width={40} height={3} rx={1.5} fill="#E2E8F0" />
-          </motion.g>
-        ))}
-
-        {/* Search input bar (foreground) */}
-        <motion.g
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-        >
-          <rect x={100} y={210} width={200} height={40} rx={20} fill="white" stroke="url(#search-grad)" strokeWidth="2" />
-          {/* Magnifying glass */}
-          <circle cx={125} cy={230} r={8} fill="none" stroke="url(#search-grad)" strokeWidth="2.5" />
-          <line x1={131} y1={236} x2={137} y2={242} stroke="url(#search-grad)" strokeWidth="2.5" strokeLinecap="round" />
-          {/* Placeholder text */}
-          <rect x={145} y={227} width={100} height={4} rx={2} fill="#E2E8F0" />
-          <rect x={145} y={234} width={60} height={3} rx={1.5} fill="#F1F5F9" />
-        </motion.g>
-
-        {/* Highlighted result (one card lights up) */}
-        <motion.rect
-          x={60}
-          y={100}
-          width={200}
-          height={32}
-          rx={8}
-          fill="none"
-          stroke="url(#search-grad)"
-          strokeWidth="2.5"
+        {/* Arrow down */}
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 1.2, duration: 0.4 }}
-        />
-
-        {/* Connection line from search to highlighted result */}
-        <motion.path
-          d="M 200 210 Q 200 180, 160 132"
-          stroke="url(#search-grad)"
-          strokeWidth="1.5"
-          strokeDasharray="3 3"
-          fill="none"
-          opacity="0.4"
-          initial={{ pathLength: 0 }}
-          whileInView={{ pathLength: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 1.4, duration: 0.5 }}
-        />
-      </svg>
-    </div>
-  );
-}
-
-/* ============================================
- * 5. OFFLINE — phone with signal-off indicator
- * ========================================== */
-export function OfflineIllustration() {
-  return (
-    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #F5F3FF 0%, #FFFFFF 50%, #EDE9FE 100%)" }}>
-      {/* Ambient glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full blur-3xl" style={{ background: "#A78BFA", opacity: 0.15 }} />
-
-      <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="offline-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#6D5EF8" stopOpacity="1" />
-            <stop offset="100%" stopColor="#8B5CF6" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-
-        {/* Phone */}
-        <motion.g
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ delay: 0.3 }}
         >
-          <rect x={150} y={60} width={100} height={180} rx={16} fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
-          <rect x={185} y={68} width={30} height={4} rx={2} fill="#CBD5E1" opacity="0.5" />
+          <svg width="16" height="20" viewBox="0 0 16 20">
+            <motion.path
+              d="M 8 0 L 8 14 M 4 10 L 8 14 L 12 10"
+              stroke="#F59E0B"
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              whileInView={{ pathLength: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4, duration: 0.4 }}
+            />
+          </svg>
+        </motion.div>
 
-          {/* Notification cards inside phone (visible but offline) */}
-          {[0, 1, 2].map((i) => (
-            <motion.g key={i}>
-              <rect x={162} y={90 + i * 35} width={76} height={28} rx={6} fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
-              <circle cx={173} cy={104 + i * 35} r={5} fill="#CBD5E1" />
-              <rect x={183} y={100 + i * 35} width={30} height={3} rx={1.5} fill="#CBD5E1" />
-              <rect x={183} y={107 + i * 35} width={20} height={2.5} rx="1" fill="#E2E8F0" />
-            </motion.g>
-          ))}
-        </motion.g>
-
-        {/* Wi-Fi off indicator */}
-        <motion.g
+        {/* Middle: 0ms badge */}
+        <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.5, type: "spring" }}
+          transition={{ delay: 0.6, type: "spring" }}
+          className="flex items-center gap-1.5"
         >
-          <circle cx={320} cy={80} r={24} fill="white" stroke="#EF4444" strokeWidth="2" />
-          {/* Wi-Fi arcs (faded) */}
-          <path d="M 310 85 Q 320 75, 330 85" fill="none" stroke="#CBD5E1" strokeWidth="1.5" />
-          <path d="M 313 88 Q 320 82, 327 88" fill="none" stroke="#CBD5E1" strokeWidth="1.5" />
-          {/* Strikethrough */}
-          <line x1={304} y1={64} x2={336} y2={96} stroke="#EF4444" strokeWidth="2" />
-        </motion.g>
+          <div className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 shadow-md">
+            <span className="text-white text-[12px] font-bold">0ms delay</span>
+          </div>
+        </motion.div>
 
-        {/* "Available" badge */}
-        <motion.g
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.8 }}
-        >
-          <rect x={165} y={215} width={70} height={18} rx={9} fill="url(#offline-grad)" />
-          <text x={200} y={227} textAnchor="middle" fontSize="9" fontWeight="600" fill="white">Available</text>
-        </motion.g>
-
-        {/* Local storage indicator (small database icon) */}
-        <motion.g
+        {/* Arrow down */}
+        <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 1 }}
+          transition={{ delay: 0.7 }}
         >
-          <ellipse cx={80} cy={140} rx={16} ry={6} fill="none" stroke="url(#offline-grad)" strokeWidth="1.5" />
-          <path d="M 64 140 L 64 160 Q 64 166, 80 166 Q 96 166, 96 160 L 96 140" fill="none" stroke="url(#offline-grad)" strokeWidth="1.5" />
-          <ellipse cx={80} cy={150} rx={16} ry={6} fill="none" stroke="url(#offline-grad)" strokeWidth="1" opacity="0.5" />
-        </motion.g>
+          <svg width="16" height="20" viewBox="0 0 16 20">
+            <path d="M 8 0 L 8 14 M 4 10 L 8 14 L 12 10" stroke="#F59E0B" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+        </motion.div>
 
-        {/* Sync arrows (showing data flows locally) */}
-        <motion.g
+        {/* Bottom: Feed with notification appearing */}
+        <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.6 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 1.2 }}
+          transition={{ delay: 0.9 }}
+          className="w-full max-w-[200px] bg-white rounded-xl border border-zinc-200 p-2 shadow-sm"
         >
-          <path d="M 100 150 Q 120 150, 140 150" fill="none" stroke="url(#offline-grad)" strokeWidth="1.5" strokeDasharray="2 3" />
-        </motion.g>
-      </svg>
+          <div className="flex items-center gap-1.5 mb-1">
+            <div className="w-4 h-4 rounded bg-gradient-to-br from-amber-400 to-orange-400" />
+            <span className="text-[8px] font-bold text-zinc-600">Your Feed</span>
+          </div>
+          {/* Highlighted new notification (just appeared) */}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 1.1 }}
+            className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-md px-1.5 py-1 mb-1"
+          >
+            <span className="text-[10px]">🍔</span>
+            <span className="text-[8px] font-medium text-zinc-600 flex-1">New order</span>
+            <span className="text-[7px] text-amber-500 font-bold">NEW</span>
+          </motion.div>
+          {/* Older notifications */}
+          <div className="flex items-center gap-1.5 px-1.5 py-1 opacity-50">
+            <span className="text-[10px]">🛒</span>
+            <span className="text-[8px] text-zinc-500 flex-1">Grocery batch</span>
+            <span className="text-[7px] text-zinc-400">1m</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-1.5 py-1 opacity-30">
+            <span className="text-[10px]">📦</span>
+            <span className="text-[8px] text-zinc-500 flex-1">Package pickup</span>
+            <span className="text-[7px] text-zinc-400">3m</span>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================
+ * 4. SEARCH — search bar filtering notification history
+ * Shows: Search bar with typed query → filtered results below
+ * ========================================== */
+export function SearchIllustration() {
+  const allItems = [
+    { icon: "🍔", label: "Swiggy order · Tuesday", match: true },
+    { icon: "📦", label: "Amazon package · Monday", match: false },
+    { icon: "🛒", label: "Blinkit grocery · Today", match: false },
+    { icon: "💊", label: "Pharmacy delivery · Friday", match: false },
+    { icon: "🍔", label: "Zomato order · Sunday", match: true },
+  ];
+
+  return (
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+      style={{ background: "linear-gradient(135deg, #F0F4FF 0%, #FFFFFF 100%)" }}>
+      <div className="relative w-full h-full flex flex-col justify-center gap-2">
+        {/* Search bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2 bg-white rounded-xl border-2 border-indigo-300 px-3 py-2 shadow-md"
+        >
+          <svg viewBox="0 0 20 20" className="w-4 h-4 fill-indigo-400">
+            <path d="M 9 2 C 5 2, 2 5, 2 9 C 2 13, 5 16, 9 16 C 13 16, 16 13, 16 9 C 16 5, 13 2, 9 2 Z M 9 4 C 12 4, 14 6, 14 9 C 14 12, 12 14, 9 14 C 6 14, 4 12, 4 9 C 4 6, 6 4, 9 4 Z M 14.5 13 L 18 16.5 L 16.5 18 L 13 14.5 Z" />
+          </svg>
+          <span className="text-[11px] font-medium text-zinc-700">food order</span>
+          <span className="ml-auto w-0.5 h-3.5 bg-indigo-400 animate-pulse" />
+        </motion.div>
+
+        {/* Results count */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="text-[8px] text-zinc-400 px-1"
+        >
+          2 results found
+        </motion.p>
+
+        {/* Results list */}
+        <div className="space-y-1">
+          {allItems.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -15 }}
+              whileInView={{ opacity: item.match ? 1 : 0.3, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 + i * 0.1 }}
+              className={`flex items-center gap-2 rounded-lg px-2 py-1.5 border ${
+                item.match
+                  ? "bg-indigo-50 border-indigo-200 shadow-sm"
+                  : "bg-white border-zinc-100"
+              }`}
+            >
+              <span className="text-sm">{item.icon}</span>
+              <span className={`text-[9px] flex-1 ${item.match ? "font-medium text-zinc-700" : "text-zinc-400"}`}>
+                {item.label}
+              </span>
+              {item.match && (
+                <span className="text-[7px] bg-indigo-100 text-indigo-600 px-1 py-0.5 rounded font-bold">
+                  MATCH
+                </span>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================
+ * 5. OFFLINE — phone with local storage, no cloud needed
+ * Shows: Phone → encrypted local storage → history accessible → cloud crossed out
+ * ========================================== */
+export function OfflineIllustration() {
+  return (
+    <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden p-4"
+      style={{ background: "linear-gradient(135deg, #F5F3FF 0%, #FFFFFF 100%)" }}>
+      <div className="relative w-full h-full flex items-center justify-center gap-3">
+        {/* Left: Phone with notifications */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center"
+        >
+          <div className="w-16 h-24 rounded-xl bg-white border-2 border-zinc-200 shadow-md p-1 flex flex-col gap-0.5">
+            <div className="w-4 h-0.5 bg-zinc-300 rounded-full mx-auto mb-0.5" />
+            {["🍔", "🛒", "📦"].map((icon, i) => (
+              <div key={i} className="flex items-center gap-0.5 bg-purple-50 rounded px-0.5 py-0.5">
+                <span className="text-[7px]">{icon}</span>
+                <div className="flex-1 h-0.5 bg-purple-200 rounded" />
+              </div>
+            ))}
+          </div>
+          <p className="text-[7px] text-zinc-500 mt-1 font-medium">Phone</p>
+        </motion.div>
+
+        {/* Arrow */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          <svg width="20" height="16" viewBox="0 0 20 16">
+            <path d="M 0 8 L 16 8 M 12 4 L 16 8 L 12 12" stroke="#6D5EF8" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+        </motion.div>
+
+        {/* Center: Encrypted local storage (cylinder/database with lock) */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, type: "spring" }}
+          className="flex flex-col items-center"
+        >
+          <div className="relative">
+            <svg viewBox="0 0 50 60" className="w-12 h-14">
+              <defs>
+                <linearGradient id="db-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#6D5EF8" />
+                  <stop offset="100%" stopColor="#8B5CF6" />
+                </linearGradient>
+              </defs>
+              {/* Database cylinder */}
+              <ellipse cx="25" cy="10" rx="18" ry="6" fill="url(#db-grad)" />
+              <path d="M 7 10 L 7 45 Q 7 51, 25 51 Q 43 51, 43 45 L 43 10" fill="url(#db-grad)" />
+              <ellipse cx="25" cy="10" rx="18" ry="6" fill="#8B5CF6" opacity="0.3" />
+              {/* Database layers */}
+              <ellipse cx="25" cy="22" rx="18" ry="5" fill="none" stroke="white" strokeWidth="1" opacity="0.4" />
+              <ellipse cx="25" cy="34" rx="18" ry="5" fill="none" stroke="white" strokeWidth="1" opacity="0.4" />
+              {/* Lock icon on front */}
+              <rect x="19" y="36" width="12" height="9" rx="1.5" fill="white" />
+              <path d="M 21 36 L 21 33 Q 21 30, 25 30 Q 29 30, 29 33 L 29 36" fill="none" stroke="white" strokeWidth="1.5" />
+            </svg>
+          </div>
+          <p className="text-[7px] text-purple-600 mt-1 font-medium text-center leading-tight">
+            Encrypted<br />Storage
+          </p>
+        </motion.div>
+
+        {/* Arrow */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.6 }}
+        >
+          <svg width="20" height="16" viewBox="0 0 20 16">
+            <path d="M 0 8 L 16 8 M 12 4 L 16 8 L 12 12" stroke="#6D5EF8" strokeWidth="2" fill="none" strokeLinecap="round" />
+          </svg>
+        </motion.div>
+
+        {/* Right: History accessible badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.7 }}
+          className="flex flex-col items-center"
+        >
+          <div className="bg-white rounded-xl border-2 border-purple-200 p-2 shadow-md">
+            <div className="flex items-center gap-1 mb-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              <span className="text-[7px] font-bold text-zinc-600">History</span>
+            </div>
+            <div className="space-y-0.5">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-sm bg-purple-200" />
+                  <div className="w-8 h-0.5 bg-zinc-200 rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-[7px] text-green-600 mt-1 font-medium">Accessible</p>
+        </motion.div>
+      </div>
+
+      {/* Bottom: "No internet needed" */}
+      <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5">
+        <svg width="12" height="12" viewBox="0 0 12 12">
+          <circle cx="6" cy="6" r="5" fill="none" stroke="#10B981" strokeWidth="1.5" />
+          <path d="M 3 6 L 5 8 L 9 4" fill="none" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+        <p className="text-[8px] text-green-600 font-semibold">No internet needed</p>
+      </div>
     </div>
   );
 }
